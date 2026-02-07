@@ -84,23 +84,9 @@ module.exports = function(RED) {
 		const timerBody = String.raw`
 		<div id="${divPrimary}" ng-init='init(${JSON.stringify(config)})'>
 			<div layout="row" layout-align="space-between center" style="max-height: 50px;">
-				<span flex="65" ng-show="devices.length <= 1" style="height:50px; line-height: 50px;"> ${config.devices[0]} ({{getDeviceTimezone(0)}}) </span>
-				<span flex="65" ng-show="devices.length > 1">
-					<md-input-container>
-						<md-select class="nr-dashboard-dropdown" ng-model="myDeviceSelect" ng-change="showStandardView()" aria-label="Select device" ng-disabled="isEditMode">
-							<md-option value="overview"> ${RED._("time-scheduler.ui.overview")} </md-option>
-							<md-option ng-repeat="device in devices" value={{$index}}> {{devices[$index]}} ({{getDeviceTimezone($index)}}) </md-option>
-						</md-select>
-					</md-input-container>
-				</span>
-				<span flex="35" layout="row" layout-align="end center" style="height: 50px;">
-					<md-button style="width: 40px; height: 36px; margin-right: 4px;" aria-label="device enabled" ng-if="myDeviceSelect !== 'overview' && !isEditMode" ng-click="toggleDeviceStatus(myDeviceSelect)" >
-						<md-icon> {{isDeviceEnabled(myDeviceSelect) ? "alarm_on" : "alarm_off"}} </md-icon>
-					</md-button>
-					<md-button style="width: 40px; height: 36px; margin: 0px;" aria-label="Add" ng-if="myDeviceSelect !== 'overview'" ng-click="toggleViews()" ng-disabled="loading">
-						<md-icon> {{isEditMode ? "close" : "add"}} </md-icon>
-					</md-button>
-					<md-fab-speed-dial md-direction="down" class="md-scale" style="max-height: 36px;" ng-if="myDeviceSelect === 'overview'">
+				<span flex="80" style="height:50px; line-height: 50px; font-weight: 500;"> Schedules </span>
+				<span flex="20" layout="row" layout-align="end center" style="height: 50px;">
+					<md-fab-speed-dial md-direction="down" class="md-scale" style="max-height: 36px;">
 						<md-fab-trigger style="width: 84px;">
 							<md-button aria-label="filter" style="width: 100%; margin: 0px;"><md-icon> filter_alt </md-icon></md-button>
 						</md-fab-trigger>
@@ -119,7 +105,19 @@ module.exports = function(RED) {
 			<div id="overview-${uniqueId}" style="display:none;">
 				<div ng-repeat="device in devices track by $index">
 					<md-list flex ng-cloak>
-						<md-subheader> <span class="md-subhead"> {{devices[$index]}} ({{getDeviceTimezone($index)}}) </span> </md-subheader>
+						<md-subheader> 
+							<div layout="row" layout-align="space-between center" style="width: 100%;">
+								<span class="md-subhead"> {{devices[$index]}} ({{getDeviceTimezone($index)}}) </span>
+								<div>
+									<md-button style="width: 40px; height: 36px; min-height: 36px; margin: 0 4px 0 0;" aria-label="device enabled" ng-click="toggleDeviceStatus($index)" >
+										<md-icon> {{isDeviceEnabled($index) ? "alarm_on" : "alarm_off"}} </md-icon>
+									</md-button>
+									<md-button style="width: 40px; height: 36px; min-height: 36px; margin: 0;" aria-label="Edit" ng-click="editDeviceSchedule($index)" ng-disabled="loading">
+										<md-icon> {{getDeviceTimer($index) ? "edit" : "add"}} </md-icon>
+									</md-button>
+								</div>
+							</div>
+						</md-subheader>
 						<div ng-if="(filteredDeviceTimers = (getTimersByOverviewFilter() | filter:{ output: $index.toString() }:true)).length">
 							<md-list-item ng-repeat="timer in filteredDeviceTimers" style="min-height: 25px; height: 25px; padding: 0 2px;">
 								<span style="overflow-x: hidden; {{(timer.disabled || !isDeviceEnabled(timer.output)) ? 'opacity: 0.4;' : ''}}">
@@ -145,47 +143,6 @@ module.exports = function(RED) {
 				<div ng-if="timers.length != 0 && getTimersByOverviewFilter().length == 0">
 					<p> ${RED._("time-scheduler.ui.noActiveOverview")} <p>
 				</div>
-			</div>
-			<div id="timersView-${uniqueId}">
-				<md-list flex ng-cloak style="text-align: center">
-					<md-subheader>
-						<div layout="row" class="md-subhead">
-							<span flex=""> # </span>
-							${config.eventMode ? `
-							<span flex="40"> ${RED._("time-scheduler.ui.start")} </span>
-							<span flex="45"> ${RED._("time-scheduler.ui.event")} </span>
-							` : `
-							<span flex="30"> ${RED._("time-scheduler.ui.start")} </span>
-							<span flex="30"> ${RED._("time-scheduler.ui.end")} </span>
-							<span flex="25"> ${RED._("time-scheduler.ui.duration")} </span>
-							`}
-						</div>
-					</md-subheader>
-					<md-list-item class="md-2-line" style="height: 74px; padding: 0 5px; border-left: 2px solid {{(timer.disabled || !isDeviceEnabled(timer.output)) ? 'red' : (timer.startSolarEvent || timer.endSolarEvent) ? '#FCD440' : 'transparent'}};" ng-repeat="timer in timers | filter:{ output: myDeviceSelect }:true track by $index">
-						<div class="md-list-item-text" ng-click="showAddView(timers.indexOf(timer))" style="opacity:{{(timer.disabled || !isDeviceEnabled(timer.output)) ? 0.4 : 1}};">
-							<div layout="row">
-								<span flex=""> {{$index+1}} </span>
-								${config.eventMode ? `
-								<span flex="40"> {{millisToTime(timer.starttime, timer.output)}} </span>
-								<span flex="45"> {{eventToEventLabel(timer.event)}} </span>
-								` : `
-								<span flex="30"> {{millisToTime(timer.starttime, timer.output)}} </span>
-								<span flex="30"> {{millisToTime(timer.endtime, timer.output)}} </span>
-								<span flex="25"> {{minutesToReadable(diff(timer.starttime,timer.endtime))}} </span>
-								`}
-							</div>
-							<div layout="row" style="padding-top: 4px; padding-bottom: 4px;">
-								<span flex="" ng-repeat="day in days | limitTo : ${config.startDay}-7" ng-init="dayIndex=$index+${config.startDay}">
-									<span class="weekDay {{(timer.days[localDayToUtc(timer,dayIndex)]) ? 'weekDayActive' : ''}}"> {{days[dayIndex]}} </span>
-								</span>
-								<span flex="" ng-repeat="day in days | limitTo : -${config.startDay}" ng-init="dayIndex=$index">
-									<span class="weekDay {{(timer.days[localDayToUtc(timer,dayIndex)]) ? 'weekDayActive' : ''}}"> {{days[dayIndex]}} </span>
-								</span>
-							</div>
-						</div>
-						<md-divider ng-if="!$last"></md-divider>
-					</md-list-item>
-				<md-list>
 			</div>
 			<div id="addTimerView-${uniqueId}" style="display:none; position: relative;">
 				<form ng-submit="addTimer()" style="width: 100%; position: absolute;">
@@ -447,9 +404,27 @@ module.exports = function(RED) {
 							$scope.days = config.i18n.days;
 							$scope.devices = config.devices;
 							$scope.deviceTimezones = config.deviceTimezones || [];
-							$scope.myDeviceSelect = $scope.devices.length > 1 ? "overview" : "0";
 							$scope.eventMode = config.eventMode;
 							$scope.eventOptions = config.eventOptions;
+							$scope.currentEditDevice = null;
+						}
+						
+						// Helper function to get timer for a specific device
+						$scope.getDeviceTimer = function(deviceIndex) {
+							if (!$scope.timers) return null;
+							return $scope.timers.find(t => t.output == deviceIndex.toString());
+						}
+						
+						// Function to edit/add schedule for a device
+						$scope.editDeviceSchedule = function(deviceIndex) {
+							$scope.currentEditDevice = deviceIndex;
+							const existingTimer = $scope.getDeviceTimer(deviceIndex);
+							if (existingTimer) {
+								const timerIndex = $scope.timers.indexOf(existingTimer);
+								$scope.showAddView(timerIndex, deviceIndex);
+							} else {
+								$scope.showAddView(undefined, deviceIndex);
+							}
 						}
 
 						$scope.$watch('msg', function() {
@@ -471,40 +446,37 @@ module.exports = function(RED) {
 
 						$scope.showStandardView = function() {
 							$scope.isEditMode = false;
-							$scope.getElement("timersView").style.display = "block";
+							$scope.currentEditDevice = null;
+							$scope.getElement("overview").style.display = "block";
 							$scope.getElement("messageBoard").style.display = "none";
-							$scope.getElement("overview").style.display = "none";
 							$scope.getElement("addTimerView").style.display = "none";
 
 							if (!$scope.timers) {
-								$scope.getElement("timersView").style.display = "none";
-
+								$scope.getElement("overview").style.display = "none";
 								const msgBoard = $scope.getElement("messageBoard");
 								msgBoard.style.display = "block";
 								msgBoard.firstElementChild.innerHTML = $scope.i18n.payloadWarning;
-							} else if ($scope.myDeviceSelect === "overview") {
-								$scope.getElement("timersView").style.display = "none";
-								$scope.getElement("overview").style.display = "block";
-							} else if ($scope.timers.filter(timer => timer.output == $scope.myDeviceSelect).length === 0) {
-								$scope.getElement("timersView").style.display = "none";
-
-								const msgBoard = $scope.getElement("messageBoard");
-								msgBoard.style.display = "block";
-								msgBoard.firstElementChild.innerHTML = $scope.i18n.nothingPlanned;
 							}
 						}
 
-						$scope.showAddView = function(timerIndex) {
+						$scope.showAddView = function(timerIndex, deviceIndex) {
 							$scope.isEditMode = true;
 							$scope.showSunSettings = false;
-							$scope.getElement("timersView").style.display = "none";
+							$scope.getElement("overview").style.display = "none";
 							$scope.getElement("messageBoard").style.display = "none";
 							$scope.getElement("addTimerView").style.display = "block";
+							
+							// Use provided deviceIndex or current edit device
+							if (deviceIndex !== undefined) {
+								$scope.currentEditDevice = deviceIndex;
+							}
+							
 							$scope.formtimer = {
 								index: timerIndex,
 								dayselect: [],
 								starttype: "custom",
 								endtype: "custom",
+								deviceIndex: $scope.currentEditDevice
 							};
 
 							if (timerIndex === undefined) {
@@ -528,13 +500,13 @@ module.exports = function(RED) {
 								$scope.updateSolarLabels();
 								
 								// Convert stored PST time to device timezone for display
-								const deviceTzStartTime = $scope.convertTimeFromPST(timer.starttime, $scope.myDeviceSelect);
+								const deviceTzStartTime = $scope.convertTimeFromPST(timer.starttime, $scope.currentEditDevice);
 								const start = new Date(deviceTzStartTime);
 								$scope.getElement("timerStarttime").value = $scope.formatTime(start.getHours(), start.getMinutes());
 								
 								if ($scope.eventMode) $scope.formtimer.timerEvent = timer.event;
 								else {
-									const deviceTzEndTime = $scope.convertTimeFromPST(timer.endtime, $scope.myDeviceSelect);
+									const deviceTzEndTime = $scope.convertTimeFromPST(timer.endtime, $scope.currentEditDevice);
 									const end = new Date(deviceTzEndTime);
 									$scope.getElement("timerEndtime").value = $scope.formatTime(end.getHours(), end.getMinutes());
 								}
@@ -551,12 +523,12 @@ module.exports = function(RED) {
 							// Get time in device timezone
 							let starttime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startInput[0], startInput[1], 0, 0).getTime();
 							// Convert to PST (system time) for storage
-							starttime = $scope.convertTimeToPST(starttime, $scope.myDeviceSelect);
+							starttime = $scope.convertTimeToPST(starttime, $scope.currentEditDevice);
 
 							const timer = {
 								starttime: starttime,
 								days: [0, 0, 0, 0, 0, 0, 0],
-								output: $scope.myDeviceSelect
+								output: $scope.currentEditDevice
 							};
 
 							if ($scope.formtimer.starttype !== "custom") {
@@ -599,7 +571,7 @@ module.exports = function(RED) {
 								}
 
 								// Convert endtime from device timezone to PST for storage
-								endtime = $scope.convertTimeToPST(endtime, $scope.myDeviceSelect);
+								endtime = $scope.convertTimeToPST(endtime, $scope.currentEditDevice);
 								timer.endtime = endtime;
 							}
 
@@ -615,7 +587,7 @@ module.exports = function(RED) {
 							// MODIFIED: Check if we're adding a new timer (not editing)
 							if (timerIndex === undefined) {
 								// Find if there's already a timer for this device
-								const existingTimerIndex = $scope.timers.findIndex(t => t.output == $scope.myDeviceSelect);
+								const existingTimerIndex = $scope.timers.findIndex(t => t.output == $scope.currentEditDevice);
 								
 								if (existingTimerIndex !== -1) {
 									// Replace existing timer for this device
