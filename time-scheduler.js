@@ -118,18 +118,25 @@ module.exports = function(RED) {
 			<div id="messageBoard-${uniqueId}" style="display:none;"> <p> </p> </div>
 			<div id="overview-${uniqueId}" style="display:none;">
 				<div ng-repeat="device in devices track by $index">
-					<md-list flex ng-cloak ng-if="(filteredDeviceTimers = (getTimersByOverviewFilter() | filter:{ output: $index.toString() }:true)).length">
+					<md-list flex ng-cloak>
 						<md-subheader> <span class="md-subhead"> {{devices[$index]}} ({{getDeviceTimezone($index)}}) </span> </md-subheader>
-						<md-list-item ng-repeat="timer in filteredDeviceTimers" style="min-height: 25px; height: 25px; padding: 0 2px;">
-							<span style="overflow-x: hidden; {{(timer.disabled || !isDeviceEnabled(timer.output)) ? 'opacity: 0.4;' : ''}}">
-								{{millisToTime(timer.starttime, timer.output)}}&#8209;${config.eventMode ? `{{eventToEventLabel(timer.event)}}` : `{{millisToTime(timer.endtime, timer.output)}}`}
-							</span>
-							<div class="md-secondary" style=" {{(timer.disabled || !isDeviceEnabled(timer.output)) ? 'opacity: 0.4' : ''}};">
-								<span ng-repeat="day in days | limitTo : ${config.startDay}-7" ng-init="dayIndex=$index+${config.startDay}">{{timer.days[localDayToUtc(timer,dayIndex)]===1 ? ($index!=0 ? "&nbsp;" : "")+days[dayIndex] : ""}}</span>
-								<span ng-repeat="day in days | limitTo : -${config.startDay}" ng-init="dayIndex=$index">{{timer.days[localDayToUtc(timer,dayIndex)]===1 ? ($index!=0 ? "&nbsp;" : "")+days[dayIndex] : ""}}</span>
-							</div>
-							<md-divider ng-if="!$last"></md-divider>
-						</md-list-item>
+						<div ng-if="(filteredDeviceTimers = (getTimersByOverviewFilter() | filter:{ output: $index.toString() }:true)).length">
+							<md-list-item ng-repeat="timer in filteredDeviceTimers" style="min-height: 25px; height: 25px; padding: 0 2px;">
+								<span style="overflow-x: hidden; {{(timer.disabled || !isDeviceEnabled(timer.output)) ? 'opacity: 0.4;' : ''}}">
+									{{millisToTime(timer.starttime, timer.output)}}&#8209;${config.eventMode ? `{{eventToEventLabel(timer.event)}}` : `{{millisToTime(timer.endtime, timer.output)}}`}
+								</span>
+								<div class="md-secondary" style=" {{(timer.disabled || !isDeviceEnabled(timer.output)) ? 'opacity: 0.4' : ''}};">
+									<span ng-repeat="day in days | limitTo : ${config.startDay}-7" ng-init="dayIndex=$index+${config.startDay}">{{timer.days[localDayToUtc(timer,dayIndex)]===1 ? ($index!=0 ? "&nbsp;" : "")+days[dayIndex] : ""}}</span>
+									<span ng-repeat="day in days | limitTo : -${config.startDay}" ng-init="dayIndex=$index">{{timer.days[localDayToUtc(timer,dayIndex)]===1 ? ($index!=0 ? "&nbsp;" : "")+days[dayIndex] : ""}}</span>
+								</div>
+								<md-divider ng-if="!$last"></md-divider>
+							</md-list-item>
+						</div>
+						<div ng-if="!(filteredDeviceTimers = (getTimersByOverviewFilter() | filter:{ output: $index.toString() }:true)).length">
+							<md-list-item style="min-height: 25px; height: 25px; padding: 0 2px;">
+								<span style="opacity: 0.5; font-style: italic;">No schedule</span>
+							</md-list-item>
+						</div>
 					<md-list>
 				</div>
 				<div ng-if="timers.length == 0">
