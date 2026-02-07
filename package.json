@@ -1,5 +1,5 @@
 {
-  "name": "node-red-contrib-ui-time-scheduler-ft",
+  "name": "node-red-contrib-ui-time-scheduler",
   "version": "1.17.2",
   "description": "A ui time scheduler for the Node-RED Dashboard",
   "dependencies": {
