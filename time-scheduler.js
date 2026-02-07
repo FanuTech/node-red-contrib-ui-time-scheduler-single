@@ -84,12 +84,12 @@ module.exports = function(RED) {
 		const timerBody = String.raw`
 		<div id="${divPrimary}" ng-init='init(${JSON.stringify(config)})'>
 			<div layout="row" layout-align="space-between center" style="max-height: 50px;">
-				<span flex="65" ng-show="devices.length <= 1" style="height:50px; line-height: 50px;"> ${config.devices[0]} </span>
+				<span flex="65" ng-show="devices.length <= 1" style="height:50px; line-height: 50px;"> ${config.devices[0]} ({{getDeviceTimezone(0)}}) </span>
 				<span flex="65" ng-show="devices.length > 1">
 					<md-input-container>
 						<md-select class="nr-dashboard-dropdown" ng-model="myDeviceSelect" ng-change="showStandardView()" aria-label="Select device" ng-disabled="isEditMode">
 							<md-option value="overview"> ${RED._("time-scheduler.ui.overview")} </md-option>
-							<md-option ng-repeat="device in devices" value={{$index}}> {{devices[$index]}} </md-option>
+							<md-option ng-repeat="device in devices" value={{$index}}> {{devices[$index]}} ({{getDeviceTimezone($index)}}) </md-option>
 						</md-select>
 					</md-input-container>
 				</span>
@@ -119,10 +119,10 @@ module.exports = function(RED) {
 			<div id="overview-${uniqueId}" style="display:none;">
 				<div ng-repeat="device in devices track by $index">
 					<md-list flex ng-cloak ng-if="(filteredDeviceTimers = (getTimersByOverviewFilter() | filter:{ output: $index.toString() }:true)).length">
-						<md-subheader> <span class="md-subhead"> {{devices[$index]}} </span> </md-subheader>
+						<md-subheader> <span class="md-subhead"> {{devices[$index]}} ({{getDeviceTimezone($index)}}) </span> </md-subheader>
 						<md-list-item ng-repeat="timer in filteredDeviceTimers" style="min-height: 25px; height: 25px; padding: 0 2px;">
 							<span style="overflow-x: hidden; {{(timer.disabled || !isDeviceEnabled(timer.output)) ? 'opacity: 0.4;' : ''}}">
-								{{millisToTime(timer.starttime)}}&#8209;${config.eventMode ? `{{eventToEventLabel(timer.event)}}` : `{{millisToTime(timer.endtime)}}`}
+								{{millisToTime(timer.starttime, timer.output)}}&#8209;${config.eventMode ? `{{eventToEventLabel(timer.event)}}` : `{{millisToTime(timer.endtime, timer.output)}}`}
 							</span>
 							<div class="md-secondary" style=" {{(timer.disabled || !isDeviceEnabled(timer.output)) ? 'opacity: 0.4' : ''}};">
 								<span ng-repeat="day in days | limitTo : ${config.startDay}-7" ng-init="dayIndex=$index+${config.startDay}">{{timer.days[localDayToUtc(timer,dayIndex)]===1 ? ($index!=0 ? "&nbsp;" : "")+days[dayIndex] : ""}}</span>
@@ -159,11 +159,11 @@ module.exports = function(RED) {
 							<div layout="row">
 								<span flex=""> {{$index+1}} </span>
 								${config.eventMode ? `
-								<span flex="40"> {{millisToTime(timer.starttime)}} </span>
+								<span flex="40"> {{millisToTime(timer.starttime, timer.output)}} </span>
 								<span flex="45"> {{eventToEventLabel(timer.event)}} </span>
 								` : `
-								<span flex="30"> {{millisToTime(timer.starttime)}} </span>
-								<span flex="30"> {{millisToTime(timer.endtime)}} </span>
+								<span flex="30"> {{millisToTime(timer.starttime, timer.output)}} </span>
+								<span flex="30"> {{millisToTime(timer.endtime, timer.output)}} </span>
 								<span flex="25"> {{minutesToReadable(diff(timer.starttime,timer.endtime))}} </span>
 								`}
 							</div>
@@ -334,6 +334,9 @@ module.exports = function(RED) {
 			if (!config.hasOwnProperty("height") || config.height == 0) config.height = 1;
 			if (!config.hasOwnProperty("name") || config.name === "") config.name = "Time-Scheduler";
 			if (!config.hasOwnProperty("devices") || config.devices.length === 0) config.devices = [config.name];
+			if (!config.hasOwnProperty("deviceTimezones") || config.deviceTimezones.length === 0) {
+				config.deviceTimezones = config.devices.map(() => "PST");
+			}
 			if (!config.hasOwnProperty("eventOptions")) config.eventOptions = [{ label: RED._("time-scheduler.label.on"), event: "true" }, { label: RED._("time-scheduler.label.off"), event: "false" }];
 			// END check props
 			config.i18n = RED._("time-scheduler.ui", { returnObjects: true });
@@ -401,11 +404,42 @@ module.exports = function(RED) {
 						}
 					},
 					initController: function($scope) {
+						// Timezone offset helper (in hours from PST)
+						$scope.timezoneOffsets = {
+							"PST": 0, "MST": 1, "CST": 2, "EST": 3,
+							"HST": -2, "AKST": -1,
+							"UTC": 8, "GMT": 8, "CET": 9, "EET": 10,
+							"IST": 13.5, "JST": 17, "AEST": 18, "NZST": 21,
+							"Other": 0
+						};
+						
+						$scope.getDeviceTimezone = function(deviceIndex) {
+							return config.deviceTimezones && config.deviceTimezones[deviceIndex] 
+								? config.deviceTimezones[deviceIndex] 
+								: "PST";
+						};
+						
+						$scope.getTimezoneOffset = function(deviceIndex) {
+							const tz = $scope.getDeviceTimezone(deviceIndex);
+							return ($scope.timezoneOffsets[tz] || 0) * 60 * 60 * 1000; // Convert to milliseconds
+						};
+						
+						$scope.convertTimeToPST = function(timeMillis, deviceIndex) {
+							// Convert from device timezone to PST (system time)
+							return timeMillis - $scope.getTimezoneOffset(deviceIndex);
+						};
+						
+						$scope.convertTimeFromPST = function(timeMillis, deviceIndex) {
+							// Convert from PST (system time) to device timezone
+							return timeMillis + $scope.getTimezoneOffset(deviceIndex);
+						};
+						
 						$scope.init = function(config) {
 							$scope.nodeId = config.id;
 							$scope.i18n = config.i18n;
 							$scope.days = config.i18n.days;
 							$scope.devices = config.devices;
+							$scope.deviceTimezones = config.deviceTimezones || [];
 							$scope.myDeviceSelect = $scope.devices.length > 1 ? "overview" : "0";
 							$scope.eventMode = config.eventMode;
 							$scope.eventOptions = config.eventOptions;
@@ -476,11 +510,16 @@ module.exports = function(RED) {
 								if (timer.hasOwnProperty("endSolarEvent")) $scope.formtimer.endtype = timer.endSolarEvent;
 								if (timer.hasOwnProperty("startSolarOffset")) $scope.formtimer.endOffset = timer.endSolarOffset;
 								$scope.updateSolarLabels();
-								const start = new Date(timer.starttime);
+								
+								// Convert stored PST time to device timezone for display
+								const deviceTzStartTime = $scope.convertTimeFromPST(timer.starttime, $scope.myDeviceSelect);
+								const start = new Date(deviceTzStartTime);
 								$scope.getElement("timerStarttime").value = $scope.formatTime(start.getHours(), start.getMinutes());
+								
 								if ($scope.eventMode) $scope.formtimer.timerEvent = timer.event;
 								else {
-									const end = new Date(timer.endtime);
+									const deviceTzEndTime = $scope.convertTimeFromPST(timer.endtime, $scope.myDeviceSelect);
+									const end = new Date(deviceTzEndTime);
 									$scope.getElement("timerEndtime").value = $scope.formatTime(end.getHours(), end.getMinutes());
 								}
 								for (let i = 0; i < timer.days.length; i++) {
@@ -493,7 +532,10 @@ module.exports = function(RED) {
 						$scope.addTimer = function() {
 							const now = new Date();
 							const startInput = $scope.getElement("timerStarttime").value.split(":");
-							const starttime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startInput[0], startInput[1], 0, 0).getTime();
+							// Get time in device timezone
+							let starttime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startInput[0], startInput[1], 0, 0).getTime();
+							// Convert to PST (system time) for storage
+							starttime = $scope.convertTimeToPST(starttime, $scope.myDeviceSelect);
 
 							const timer = {
 								starttime: starttime,
@@ -517,6 +559,7 @@ module.exports = function(RED) {
 								}
 							} else {
 								const endInput = $scope.getElement("timerEndtime").value.split(":");
+								// Get time in device timezone
 								let endtime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endInput[0], endInput[1], 0, 0).getTime();
 
 								if ($scope.formtimer.endtype !== "custom") {
@@ -524,9 +567,14 @@ module.exports = function(RED) {
 									timer.endSolarOffset = $scope.formtimer.endOffset;
 								}
 
-								if ($scope.formtimer.starttype === "custom" && $scope.formtimer.endtype === "custom" && $scope.diff(starttime, endtime) < 1) {
-									if (confirm($scope.i18n.alertTimespan)) endtime += 24 * 60 * 60 * 1000;
-									else return;
+								// For custom times, need to check if span crosses midnight in device timezone before converting
+								if ($scope.formtimer.starttype === "custom" && $scope.formtimer.endtype === "custom") {
+									// These are in device timezone at this point
+									const deviceStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startInput[0], startInput[1], 0, 0).getTime();
+									if ($scope.diff(deviceStartTime, endtime) < 1) {
+										if (confirm($scope.i18n.alertTimespan)) endtime += 24 * 60 * 60 * 1000;
+										else return;
+									}
 								} else if ($scope.formtimer.starttype !== "custom" && $scope.formtimer.endtype !== "custom") {
 									if (timer.startSolarEvent === timer.endSolarEvent && (timer.startSolarOffset || 0) >= (timer.endSolarOffset || 0)) {
 										alert($scope.i18n.alertTimespanDay);
@@ -534,6 +582,8 @@ module.exports = function(RED) {
 									}
 								}
 
+								// Convert endtime from device timezone to PST for storage
+								endtime = $scope.convertTimeToPST(endtime, $scope.myDeviceSelect);
 								timer.endtime = endtime;
 							}
 
@@ -604,7 +654,11 @@ module.exports = function(RED) {
 							return option ? option.label : event;
 						}
 
-						$scope.millisToTime = function(millis) {
+						$scope.millisToTime = function(millis, deviceIndex) {
+							// If deviceIndex is provided, convert from PST to device timezone
+							if (deviceIndex !== undefined && deviceIndex !== null) {
+								millis = $scope.convertTimeFromPST(millis, deviceIndex);
+							}
 							const date = new Date(millis);
 							return $scope.formatTime(date.getHours(), date.getMinutes());
 						}
