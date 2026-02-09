@@ -1020,7 +1020,7 @@ module.exports = function(RED) {
 			console.log("TimeSchedulerNode:", error);
 		}
 	}
-	RED.nodes.registerType("ui_time_scheduler", TimeSchedulerNode);
+	RED.nodes.registerType("ui_time_scheduler_single", TimeSchedulerNode);
 
 	let uiPath = ((RED.settings.ui || {}).path);
 	if (uiPath == undefined) uiPath = 'ui';
