@@ -86,12 +86,7 @@ module.exports = function(RED) {
 			<div id="deviceListView-${uniqueId}">
 				<md-list flex ng-cloak>
 					<md-subheader>
-						<div layout="row" class="md-subhead">
-							<span flex="38">${RED._("time-scheduler.label.devices")}</span>
-							<span flex="24" style="text-align:center;">Time Zone</span>
-							<span flex="26" style="text-align:center;">${config.eventMode ? RED._("time-scheduler.ui.event") : "Schedule"}</span>
-							<span flex="12"></span>
-						</div>
+					<div class="md-subhead" style="text-align:center;">Schedules</div>
 					</md-subheader>
 
 					<md-list-item class="md-2-line" ng-repeat="device in devices track by $index" style="min-height: 72px; padding: 0 5px;">
