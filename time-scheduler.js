@@ -82,7 +82,7 @@ module.exports = function(RED) {
 			/* Column alignment for device rows */
 			#${divPrimary} .ts-row {
 				display: grid;
-				grid-template-columns: minmax(200px, 1fr) 120px 240px 96px;
+				grid-template-columns: minmax(200px, 1fr) 120px 240px 112px;
 				column-gap: 10px;
 				align-items: center;
 				width: 100%;
@@ -111,17 +111,22 @@ module.exports = function(RED) {
 				text-overflow: ellipsis;
 				white-space: nowrap;
 			}
-			#${divPrimary} .ts-actions {
+			#${divPrimary} #${divPrimary} .ts-actions {
 				justify-self: end;
 				display: flex;
 				align-items: center;
+				gap: 8px;
 			}
-			#${divPrimary} .ts-actions md-button {
-				margin: 0 0 0 4px !important;
+			#${divPrimary} .ts-actions md-button.ts-action-btn {
+				margin: 0 !important;
+				min-width: 36px !important;
+				width: 36px !important;
+				height: 36px !important;
+				padding: 0 !important;
 			}
 			@media (max-width: 600px) {
 				#${divPrimary} .ts-row {
-					grid-template-columns: minmax(160px, 1fr) 105px 190px 96px;
+					grid-template-columns: minmax(160px, 1fr) 105px 190px 104px;
 					column-gap: 6px;
 				}
 				#${divPrimary} .ts-tz md-input-container { width: 100px !important; }
@@ -160,10 +165,10 @@ module.exports = function(RED) {
 								</div>
 
 								<div class="ts-actions">
-									<md-button style="width: 40px; height: 36px;" aria-label="device enabled" ng-click="toggleDeviceStatus($index)" ng-disabled="isEditMode">
+									<md-button class="md-icon-button ts-action-btn" aria-label="device enabled" ng-click="toggleDeviceStatus($index)" ng-disabled="isEditMode">
 										<md-icon> {{isDeviceEnabled($index) ? "alarm_on" : "alarm_off"}} </md-icon>
 									</md-button>
-									<md-button style="width: 40px; height: 36px;" aria-label="edit schedule" ng-click="editDevice($index)" ng-disabled="loading">
+									<md-button class="md-icon-button ts-action-btn" aria-label="edit schedule" ng-click="editDevice($index)" ng-disabled="loading">
 										<md-icon> edit </md-icon>
 									</md-button>
 								</div>
@@ -178,7 +183,7 @@ module.exports = function(RED) {
 				<div layout="row" layout-align="space-between center" style="max-height: 50px;">
 					<span flex="70" style="height:50px; line-height: 50px;"> {{devices[editDeviceIndex].name}} </span>
 					<span flex="30" layout="row" layout-align="end center" style="height: 50px;">
-						<md-button style="width: 40px; height: 36px; margin: 0px;" aria-label="Close" ng-click="cancelEdit()" ng-disabled="loading">
+						<md-button class="md-icon-button ts-action-btn" aria-label="Close" style="margin:0;" ng-click="cancelEdit()" ng-disabled="loading">
 							<md-icon> close </md-icon>
 						</md-button>
 					</span>
