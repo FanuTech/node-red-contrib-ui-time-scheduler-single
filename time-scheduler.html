@@ -74,6 +74,16 @@ SOFTWARE.
         <input type="checkbox" id="node-input-singleOff" style="display: inline-block; width: auto; vertical-align: top;">
         <span data-i18n="time-scheduler.singleOffDesc"></span>
     </div>
+    <div class="form-row" id="node-div-onPayload">
+        <label for="node-input-onPayload"><i class="fa fa-toggle-on"></i> On payload</label>
+        <input type="text" id="node-input-onPayload" style="width:60%;">
+        <input type="hidden" id="node-input-onPayloadType">
+    </div>
+    <div class="form-row" id="node-div-offPayload">
+        <label for="node-input-offPayload"><i class="fa fa-toggle-off"></i> Off payload</label>
+        <input type="text" id="node-input-offPayload" style="width:60%;">
+        <input type="hidden" id="node-input-offPayloadType">
+    </div>
     <div class="form-row">
         <label for="node-input-onlySendChange"><i class="fa fa-hand-paper-o"></i> <span data-i18n="time-scheduler.label.block"></span> </label>
         <input type="checkbox" id="node-input-onlySendChange" style="display: inline-block; width: auto; vertical-align: top;">
@@ -116,6 +126,10 @@ SOFTWARE.
             eventMode: { value: false },
             eventOptions: { value: [{ label: "On", event: "true" }, { label: "Off", event: "false" }] },
             sendTopic: { value: false },
+            onPayload: { value: "true" },
+            onPayloadType: { value: "bool" },
+            offPayload: { value: "false" },
+            offPayloadType: { value: "bool" },
             lat: { value: '' },
             lon: { value: '' },
             customContextStore: { value: '' },
@@ -155,6 +169,25 @@ SOFTWARE.
                 }
             });
 
+            // Customizable on/off commands (non-event mode)
+            $("#node-input-onPayload").typedInput({
+                default: (node.onPayloadType || "bool"),
+                typeField: "#node-input-onPayloadType",
+                types: ["str","num","bool","json"]
+            });
+            $("#node-input-offPayload").typedInput({
+                default: (node.offPayloadType || "bool"),
+                typeField: "#node-input-offPayloadType",
+                types: ["str","num","bool","json"]
+            });
+
+            // Always show the on/off payload typed inputs (regardless of event mode)
+            function toggleOnOffPayloadRows() {
+                $("#node-div-onPayload").show();
+                $("#node-div-offPayload").show();
+            }
+
+
             $("#node-input-eventMode").on("change", function() {
                 if ($("#node-input-eventMode").prop("checked")) {
                     $("#node-div-customPayload").show();
@@ -169,7 +202,8 @@ SOFTWARE.
                     $("#node-div-refresh").show();
                     $("#node-div-singleOff").show();
                 }
-            });
+                            toggleOnOffPayloadRows();
+});
 
             $("#node-input-customPayload").on("change", function() {
                 if ($("#node-input-customPayload").prop("checked")) {
@@ -271,6 +305,10 @@ SOFTWARE.
                     $("#node-input-eventOption-container").editableList('addItem', { label: this.eventOptions[i].label, event: this.eventOptions[i].event });
                 }
             }
+
+            // Initialize visibility based on current mode
+            toggleOnOffPayloadRows();
+
         },
         oneditsave: function() {
             const node = this;
