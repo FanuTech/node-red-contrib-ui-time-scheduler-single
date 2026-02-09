@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 -->
 
-<script type="text/x-red" data-template-name="ui_time_scheduler">
+<script type="text/x-red" data-template-name="ui_time_scheduler-single">
     <div class="form-row" id="template-row-group">
        <label for="node-input-group"><i class="fa fa-table"></i> <span data-i18n="time-scheduler.label.group"></span> </label>
        <input type="text" id="node-input-group">
@@ -101,7 +101,7 @@ SOFTWARE.
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('ui_time_scheduler', {
+    RED.nodes.registerType('ui_time_scheduler-single', {
         category: 'dashboard',
         color: 'rgb( 63, 173, 181)',
         defaults: {
@@ -155,7 +155,7 @@ SOFTWARE.
                     group: "#node-input-group"
                 });
             } else {
-                console.warn("ui_time_scheduler: elementSizer() is not available - is node-red-dashboard installed?");
+                console.warn("ui_time_scheduler-single: elementSizer() is not available - is node-red-dashboard installed?");
             }
 
             const availableTimezones = [

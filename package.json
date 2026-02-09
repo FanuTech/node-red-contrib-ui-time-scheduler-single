@@ -5,7 +5,7 @@
   "dependencies": {
     "suncalc": "^1.9.0"
   },
-  "main": "time-scheduler.js",
+  "main": "time-scheduler-single.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,7 +14,7 @@
   "node-red": {
     "version": ">=0.19.6",
     "nodes": {
-      "time_scheduler": "time-scheduler.js"
+      "time_scheduler-single": "time-scheduler-single.js"
     }
   },
   "engines": {
