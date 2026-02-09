@@ -199,7 +199,7 @@ module.exports = function(RED) {
 							</md-button>
 							<span ng-if="formtimer.index === undefined" style="width: 40px;"></span> <span ng-if="formtimer.index === undefined" style="width: 40px;"></span>
 							${config.solarEventsEnabled ? `<md-button style="margin: 1px;" aria-label="suntimer" ng-click="showSunSettings=!showSunSettings"> <md-icon> wb_sunny </md-icon> </md-button>` : ``}
-							<md-button style="margin: 1px" ng-click="addTimer()"> <md-icon> done </md-icon> </md-button>
+							<md-button style="margin: 1px" ng-click="addTimer()" ng-disabled="formtimer.dayselect.length === 0"> <md-icon> done </md-icon> </md-button>
 						</div>
 					</div>
 					<div ng-show="showSunSettings">
@@ -378,8 +378,8 @@ module.exports = function(RED) {
 						};
 						
 						$scope.getDeviceTimezone = function(deviceIndex) {
-							return config.deviceTimezones && config.deviceTimezones[deviceIndex] 
-								? config.deviceTimezones[deviceIndex] 
+							return $scope.deviceTimezones && $scope.deviceTimezones[deviceIndex] 
+								? $scope.deviceTimezones[deviceIndex] 
 								: "PST";
 						};
 						
@@ -417,7 +417,6 @@ module.exports = function(RED) {
 						
 						// Function to edit/add schedule for a device
 						$scope.editDeviceSchedule = function(deviceIndex) {
-							alert("Edit button clicked for device: " + deviceIndex);
 							console.log("editDeviceSchedule called for device:", deviceIndex);
 							$scope.currentEditDevice = deviceIndex;
 							const existingTimer = $scope.getDeviceTimer(deviceIndex);
@@ -523,7 +522,6 @@ module.exports = function(RED) {
 						}
 
 						$scope.addTimer = function() {
-							alert("addTimer function called!");
 							console.log("addTimer called");
 							console.log("currentEditDevice:", $scope.currentEditDevice);
 							console.log("formtimer:", $scope.formtimer);
