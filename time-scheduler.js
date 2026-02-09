@@ -86,19 +86,7 @@ module.exports = function(RED) {
 			<div layout="row" layout-align="space-between center" style="max-height: 50px;">
 				<span flex="80" style="height:50px; line-height: 50px; font-weight: 500;"> Schedules </span>
 				<span flex="20" layout="row" layout-align="end center" style="height: 50px;">
-					<md-fab-speed-dial md-direction="down" class="md-scale" style="max-height: 36px;">
-						<md-fab-trigger style="width: 84px;">
-							<md-button aria-label="filter" style="width: 100%; margin: 0px;"><md-icon> filter_alt </md-icon></md-button>
-						</md-fab-trigger>
-						<md-fab-actions style="width: 84px;">
-							<md-button aria-label="enabled" style="width: 100%; margin: 7px 0 0 0; border: 2px solid var(--nr-dashboard-groupBorderColor);" ng-click="changeFilter('enabled')" ng-disabled="overviewFilter != 'all'">
-								${RED._("time-scheduler.ui.active")} <md-icon> {{overviewFilter === "all" ? "" : "check"}} </md-icon> 
-							</md-button>
-							<md-button aria-label="all" style="width: 100%; margin: 7px 0 0 0; border: 2px solid var(--nr-dashboard-groupBorderColor);" ng-click="changeFilter('all')" ng-disabled="overviewFilter == 'all'">
-								${RED._("time-scheduler.ui.all")} <md-icon> {{overviewFilter === "all" ? "check" : ""}} </md-icon> 
-							</md-button>
-						</md-fab-actions>
-					</md-fab-speed-dial>
+					
 				</span>
 			</div>
 			<div id="messageBoard-${uniqueId}" style="display:none;"> <p> </p> </div>
@@ -118,7 +106,7 @@ module.exports = function(RED) {
 								</div>
 							</div>
 						</md-subheader>
-						<div ng-if="(filteredDeviceTimers = (getTimersByOverviewFilter() | filter:{ output: $index.toString() }:true)).length">
+						<div ng-if="(filteredDeviceTimers = (timers | filter:{ output: $index.toString() }:true)).length">
 							<md-list-item ng-repeat="timer in filteredDeviceTimers" style="min-height: 25px; height: 25px; padding: 0 2px;">
 								<span style="overflow-x: hidden; {{(timer.disabled || !isDeviceEnabled(timer.output)) ? 'opacity: 0.4;' : ''}}">
 									{{millisToTime(timer.starttime, timer.output)}}&#8209;${config.eventMode ? `{{eventToEventLabel(timer.event)}}` : `{{millisToTime(timer.endtime, timer.output)}}`}
@@ -130,17 +118,17 @@ module.exports = function(RED) {
 								<md-divider ng-if="!$last"></md-divider>
 							</md-list-item>
 						</div>
-						<div ng-if="!(filteredDeviceTimers = (getTimersByOverviewFilter() | filter:{ output: $index.toString() }:true)).length">
+						<div ng-if="!(filteredDeviceTimers = (timers | filter:{ output: $index.toString() }:true)).length">
 							<md-list-item style="min-height: 25px; height: 25px; padding: 0 2px;">
 								<span style="opacity: 0.5; font-style: italic;">No schedule</span>
 							</md-list-item>
 						</div>
 					<md-list>
 				</div>
-<div ng-if="timers.length != 0 && getTimersByOverviewFilter().length == 0">
-					<p> ${RED._("time-scheduler.ui.noActiveOverview")} <p>
+				<div ng-if="timers.length == 0">
+					<p> ${RED._("time-scheduler.ui.emptyOverview")} <p>
 				</div>
-			</div>
+</div>
 			<div id="addTimerView-${uniqueId}" style="display:none; position: relative;">
 				<div style="width: 100%; position: absolute;">
 					<div ng-show="!showSunSettings">
@@ -733,17 +721,6 @@ module.exports = function(RED) {
 						$scope.getElement = function(elementId) {
 							return document.querySelector("#" + elementId + "-" + $scope.nodeId.replace(".", ""));
 						}
-
-						$scope.changeFilter = function(filter) {
-							$scope.overviewFilter = filter;
-							$scope.sendTimersToOutput();
-						}
-
-						$scope.getTimersByOverviewFilter = function() {
-							if ($scope.overviewFilter == 'all') return $scope.timers;
-							return $scope.timers ? $scope.timers.filter(t => !t.disabled && $scope.isDeviceEnabled(t.output)) : [];
-						}
-
 						$scope.toggleDeviceStatus = function(deviceIndex) {
 							if ($scope.isDeviceEnabled(deviceIndex)) {
 								$scope.disabledDevices = $scope.disabledDevices || [];
@@ -768,7 +745,7 @@ module.exports = function(RED) {
 								success: function(json) {
 									$scope.timers = json.timers || [];
 									$scope.disabledDevices = json.settings.disabledDevices || [];
-									$scope.overviewFilter = json.settings.overviewFilter || 'all';
+									$scope.overviewFilter = 'all';
 									$scope.$digest();
 								},
 								complete: function() {
