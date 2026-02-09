@@ -340,13 +340,29 @@ module.exports = function(RED) {
 					},
 					beforeSend: function(msg, orig) {
 						node.status({});
-						if (orig && orig.msg[0]) {
-							setTimers(orig.msg[0].payload.timers);
-							setSettings(orig.msg[0].payload.settings);
-							const sendMsg = JSON.parse(JSON.stringify(orig.msg));
-							sendMsg[0].payload = serializeData();
-							addOutputValues(sendMsg);
-							return sendMsg;
+						try {
+							let inMsg = (orig && orig.msg !== undefined) ? orig.msg : msg;
+							if (Array.isArray(inMsg)) inMsg = inMsg[0];
+							if (!inMsg) return;
+
+							let payload = inMsg.payload;
+							if (typeof payload === "string") {
+								try { payload = JSON.parse(payload); } catch(e) {}
+							}
+
+							if (payload && payload.timers !== undefined) {
+								setTimers(payload.timers);
+								if (payload.settings) setSettings(payload.settings);
+
+								const baseMsg = JSON.parse(JSON.stringify(inMsg));
+								baseMsg.payload = serializeData();
+
+								const out = [baseMsg];
+								addOutputValues(out);
+								return out;
+							}
+						} catch (err) {
+							node.status({ fill: "red", shape: "dot", text: err.toString() });
 						}
 					},
 					initController: function($scope) {
@@ -360,8 +376,9 @@ module.exports = function(RED) {
 						};
 						
 						$scope.getDeviceTimezone = function(deviceIndex) {
-							return config.deviceTimezones && config.deviceTimezones[deviceIndex] 
-								? config.deviceTimezones[deviceIndex] 
+							// deviceTimezones is set during init(config)
+							return ($scope.deviceTimezones && $scope.deviceTimezones[deviceIndex])
+								? $scope.deviceTimezones[deviceIndex]
 								: "PST";
 						};
 						
