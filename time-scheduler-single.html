@@ -24,77 +24,77 @@ SOFTWARE.
 
 <script type="text/x-red" data-template-name="ui_time_scheduler_single">
     <div class="form-row" id="template-row-group">
-       <label for="node-input-group"><i class="fa fa-table"></i> <span data-i18n="time-scheduler.label.group"></span> </label>
+       <label for="node-input-group"><i class="fa fa-table"></i> Group </label>
        <input type="text" id="node-input-group">
     </div>
     <div class="form-row" id="template-row-size">
-        <label><i class="fa fa-object-group"></i> <span data-i18n="time-scheduler.label.size"></span> </label>
+        <label><i class="fa fa-object-group"></i> Size </label>
         <input type="hidden" id="node-input-width">
         <input type="hidden" id="node-input-height">
         <button class="editor-button" id="node-input-size"></button>
     </div>
-    <label for="form-row node-input-device-container-row"><i class="fa fa-plug"></i> <span data-i18n="time-scheduler.label.devices"></span> </label>
+    <label for="form-row node-input-device-container-row"><i class="fa fa-plug"></i> Devices </label>
     <div class="form-row node-input-device-container-row">
         <ol id="node-input-device-container"></ol>
     </div>
     <div class="form-row">
-        <label for="node-input-eventMode"><i class="fa fa-unlink"></i> <span data-i18n="time-scheduler.label.eventMode"></span> </label>
+        <label for="node-input-eventMode"><i class="fa fa-unlink"></i> Event Mode </label>
         <input type="checkbox" id="node-input-eventMode" style="display: inline-block; width: auto; vertical-align: top;">
-        <span data-i18n="time-scheduler.eventModeDesc"></span>
+        Schedule single events rather than a time span
     </div>
     <div class="form-row" id="node-div-customPayload">
-        <label for="node-input-customPayload"><i class="fa fa-asterisk"></i> <span data-i18n="time-scheduler.label.customPayload"></span> </label>
+        <label for="node-input-customPayload"><i class="fa fa-asterisk"></i> Custom Payload </label>
         <input type="checkbox" id="node-input-customPayload" style="display: inline-block; width: auto; vertical-align: top;">
-        <span data-i18n="time-scheduler.customPayloadDesc"></span>
+        Use custom on/off payloads
     </div>
     <div id="node-div-eventOption">
-        <label for="form-row node-input-eventOption-container-row"><i class="fa fa-list"></i> <span data-i18n="time-scheduler.label.eventOptions"></span> </label>
+        <label for="form-row node-input-eventOption-container-row"><i class="fa fa-list"></i> Event Options </label>
         <div class="form-row node-input-eventOption-container-row">
             <ol id="node-input-eventOption-container"></ol>
         </div>
     </div>
     <div class="form-row">
-        <label for="node-input-startDay"><i class="fa fa-calendar"></i> <span data-i18n="time-scheduler.label.startDay"></span> </label>
+        <label for="node-input-startDay"><i class="fa fa-calendar"></i> First Day </label>
         <select id="node-input-startDay" style="width:25%; margin-right: 6px;">
-            <option value="0" data-i18n="time-scheduler.days.0"> </option>
-            <option value="1" data-i18n="time-scheduler.days.1"> </option>
-            <option value="2" data-i18n="time-scheduler.days.2"> </option>
-            <option value="3" data-i18n="time-scheduler.days.3"> </option>
-            <option value="4" data-i18n="time-scheduler.days.4"> </option>
-            <option value="5" data-i18n="time-scheduler.days.5"> </option>
-            <option value="6" data-i18n="time-scheduler.days.6"> </option>
+            <option value="0">Sunday</option>
+            <option value="1">Monday</option>
+            <option value="2">Tuesday</option>
+            <option value="3">Wednesday</option>
+            <option value="4">Thursday</option>
+            <option value="5">Friday</option>
+            <option value="6">Saturday</option>
         </select>
         <span class="form-row" id="node-div-refresh">
-            <label for="node-input-refresh"><i class="fa fa-refresh"></i> <span data-i18n="time-scheduler.label.refresh"></span> </label>
+            <label for="node-input-refresh"><i class="fa fa-refresh"></i> Refresh </label>
             <input type="number" id="node-input-refresh" min="1" max="60" style="width:25%;"/>
         </span>
     </div>
     <div class="form-row" id="node-div-singleOff">
-        <label for="node-input-singleOff"><i class="fa fa-dot-circle-o"></i> <span data-i18n="time-scheduler.label.singleOff"></span> </label>
+        <label for="node-input-singleOff"><i class="fa fa-dot-circle-o"></i> Single Off </label>
         <input type="checkbox" id="node-input-singleOff" style="display: inline-block; width: auto; vertical-align: top;">
-        <span data-i18n="time-scheduler.singleOffDesc"></span>
+        Output "off" payloads only at the defined end time
     </div>
     <div class="form-row">
-        <label for="node-input-onlySendChange"><i class="fa fa-hand-paper-o"></i> <span data-i18n="time-scheduler.label.block"></span> </label>
+        <label for="node-input-onlySendChange"><i class="fa fa-hand-paper-o"></i> Block </label>
         <input type="checkbox" id="node-input-onlySendChange" style="display: inline-block; width: auto; vertical-align: top;">
-        <span data-i18n="time-scheduler.onlySendChangeDesc"></span>
+        Block device output unless value changes
     </div>
     <div class="form-row">
         <label for="node-input-sendTopic"><i class="fa fa-tasks"></i> Topic</label>
         <input type="checkbox" id="node-input-sendTopic" style="display: inline-block; width: auto; vertical-align: top;">
-        <span data-i18n="time-scheduler.topicDesc"></span>
+        Send the device name via msg.topic
     </div>
     <div class="form-row">
-		<label for="node-input-lat"><i class="fa fa-globe"></i> <span data-i18n="time-scheduler.label.latitude"></span> </label>
+		<label for="node-input-lat"><i class="fa fa-globe"></i> Latitude </label>
 		<input type="number" id="node-input-lat" min="-90" max="90" step="any" placeholder="48.3069" style="width:25%; margin-right: 6px;">
-		<label for="node-input-lon"><i class="fa fa-globe"></i> <span data-i18n="time-scheduler.label.longitude"></span> </label>
+		<label for="node-input-lon"><i class="fa fa-globe"></i> Longitude </label>
 		<input type="number" id="node-input-lon" min="-180" max="180" step="any" placeholder="14.2858" style="width:25%">
 	</div>
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="time-scheduler.label.name"></span> </label>
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name </label>
         <input type="text" id="node-input-name">
         <span class="form-row" id="node-div-customContextStore">
-            <label for="node-input-customContextStore"><i class="fa fa-database"></i> <span data-i18n="time-scheduler.label.context"></span> </label>
+            <label for="node-input-customContextStore"><i class="fa fa-database"></i> Context </label>
             <select id="node-input-customContextStore" style="width:25%"></select>
         </span>
     </div>
