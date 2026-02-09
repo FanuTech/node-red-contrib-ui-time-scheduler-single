@@ -117,7 +117,7 @@ module.exports = function(RED) {
 				flex-direction: row;
 				flex-wrap: nowrap;
 				white-space: nowrap;
-				align-items: right;
+				align-items: center;
 				justify-content: flex-end;
 				gap: 8px;
 				min-width: 0;
@@ -133,9 +133,23 @@ module.exports = function(RED) {
 				align-items: center;
 				justify-content: center;
 				flex: 0 0 auto;
+			
+			#${divPrimary} .ts-actions md-button.ts-action-btn .md-button-inner {
+				display: flex !important;
+				align-items: center !important;
+				justify-content: center !important;
+				width: 100% !important;
+				height: 100% !important;
 			}
+			#${divPrimary} .ts-actions md-button.ts-action-btn md-icon {
+				display: flex !important;
+				align-items: center !important;
+				justify-content: center !important;
+				line-height: 1 !important;
+			}
+}
 			#${divPrimary} .ts-actions md-icon {
-				line-height: 24px;
+				line-height: 1;
 				width: 24px;
 				height: 24px;
 			}
@@ -181,10 +195,10 @@ module.exports = function(RED) {
 
 								<div class="ts-actions">
 									<md-button class="md-icon-button ts-action-btn" aria-label="device enabled" ng-click="toggleDeviceStatus($index)" ng-disabled="isEditMode">
-										<md-icon> {{isDeviceEnabled($index) ? "alarm_on" : "alarm_off"}} </md-icon>
+										<md-icon>{{isDeviceEnabled($index) ? "alarm_on" : "alarm_off"}}</md-icon>
 									</md-button>
 									<md-button class="md-icon-button ts-action-btn" aria-label="edit schedule" ng-click="editDevice($index)" ng-disabled="loading">
-										<md-icon> edit </md-icon>
+										<md-icon>edit</md-icon>
 									</md-button>
 								</div>
 							</div>
@@ -199,7 +213,7 @@ module.exports = function(RED) {
 					<span flex="70" style="height:50px; line-height: 50px;"> {{devices[editDeviceIndex].name}} </span>
 					<span flex="30" layout="row" layout-align="end center" style="height: 50px;">
 						<md-button class="md-icon-button ts-action-btn" aria-label="Close" style="margin:0;" ng-click="cancelEdit()" ng-disabled="loading">
-							<md-icon> close </md-icon>
+							<md-icon>close</md-icon>
 						</md-button>
 					</span>
 				</div>
