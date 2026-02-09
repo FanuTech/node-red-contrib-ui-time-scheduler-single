@@ -133,7 +133,9 @@ module.exports = function(RED) {
 				align-items: center;
 				justify-content: center;
 				flex: 0 0 auto;
-			
+				/* Make icon buttons square */
+				border-radius: 0 !important;
+			}
 			#${divPrimary} .ts-actions md-button.ts-action-btn .md-button-inner {
 				display: flex !important;
 				align-items: center !important;
@@ -146,10 +148,6 @@ module.exports = function(RED) {
 				align-items: center !important;
 				justify-content: center !important;
 				line-height: 1 !important;
-			}
-}
-			#${divPrimary} .ts-actions md-icon {
-				line-height: 1;
 				width: 24px;
 				height: 24px;
 			}
