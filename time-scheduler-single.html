@@ -207,7 +207,7 @@ SOFTWARE.
 
             $("#node-input-device-container").css('min-height', '165px').editableList({
                 addItem: function(row, index, data) {
-                    const current = node._("time-scheduler.label.device") + " " + (index + 1);
+                    const current = "Device" + " " + (index + 1);
 
                     const label = $('<span/>', { class: "node-input-device-label", text: " " + current, style: "display: inline-block; width: 80px;" });
                     $(row).html(label);
@@ -242,11 +242,11 @@ SOFTWARE.
                 removeItem: function(opt) {
                     const devices = $("#node-input-device-container").editableList('items');
                     devices.each(function(i) {
-                        $(this).find(".node-input-device-label").html(node._("time-scheduler.label.device") + " " + (i + 1));
+                        $(this).find(".node-input-device-label").html("Device" + " " + (i + 1));
                         const name = $(this).find(".node-input-device-name").typedInput('value');
-                        const regex = new RegExp("^" + node._("time-scheduler.label.device") + " \\d+$")
+                        const regex = new RegExp("^" + "Device" + " \\d+$")
                         if (regex.test(name)) {
-                            $(this).find(".node-input-device-name").typedInput('value', node._("time-scheduler.label.device") + " " + (i + 1));
+                            $(this).find(".node-input-device-name").typedInput('value', "Device" + " " + (i + 1));
                         }
                         $(this).find(".node-input-device-index").html(i + 2);
                     });
@@ -256,11 +256,11 @@ SOFTWARE.
                 sortItems: function(rules) {
                     const devices = $("#node-input-device-container").editableList('items');
                     devices.each(function(i) {
-                        $(this).find(".node-input-device-label").html(node._("time-scheduler.label.device") + " " + (i + 1));
+                        $(this).find(".node-input-device-label").html("Device" + " " + (i + 1));
                         const name = $(this).find(".node-input-device-name").typedInput('value');
-                        const regex = new RegExp("^" + node._("time-scheduler.label.device") + " \\d+$")
+                        const regex = new RegExp("^" + "Device" + " \\d+$")
                         if (regex.test(name)) {
-                            $(this).find(".node-input-device-name").typedInput('value', node._("time-scheduler.label.device") + " " + (i + 1));
+                            $(this).find(".node-input-device-name").typedInput('value', "Device" + " " + (i + 1));
                         }
                         $(this).find(".node-input-device-index").html(i + 2);
                     });
@@ -325,7 +325,7 @@ SOFTWARE.
             devices.each(function(i) {
                 const device = $(this);
                 let deviceName = device.find(".node-input-device-name").typedInput('value');
-                deviceName = deviceName === "" ? node._("time-scheduler.label.device") + " " + (i + 1) : deviceName;
+                deviceName = deviceName === "" ? "Device" + " " + (i + 1) : deviceName;
                 while (node.devices.includes(deviceName)) {
                     deviceName = deviceName + "_" + node._("time-scheduler.copy");
                 }
