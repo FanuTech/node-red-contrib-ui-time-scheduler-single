@@ -397,8 +397,9 @@ module.exports = function(RED) {
 						};
 						
 						$scope.getDeviceTimezone = function(deviceIndex) {
-							return config.deviceTimezones && config.deviceTimezones[deviceIndex] 
-								? config.deviceTimezones[deviceIndex] 
+							// deviceTimezones is set in init(config)
+							return ($scope.deviceTimezones && $scope.deviceTimezones[deviceIndex])
+								? $scope.deviceTimezones[deviceIndex]
 								: "PST";
 						};
 						
