@@ -146,6 +146,18 @@ SOFTWARE.
         oneditprepare: function() {
             const node = this;
 
+
+            // Enable the Dashboard size selector (writes to hidden #node-input-width/#node-input-height)
+            if ($.fn.elementSizer) {
+                $("#node-input-size").elementSizer({
+                    width: "#node-input-width",
+                    height: "#node-input-height",
+                    group: "#node-input-group"
+                });
+            } else {
+                console.warn("ui_time_scheduler: elementSizer() is not available - is node-red-dashboard installed?");
+            }
+
             const availableTimezones = [
                 "PST", "MST", "CST", "EST", "HST", "AKST",
                 "UTC", "GMT", "CET", "EET", "IST", "JST",
